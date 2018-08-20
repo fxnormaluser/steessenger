@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+
+<!-- 
+
+	Steessenger Steem Messenger	
+
+ -->
+
+<style>
+
+/*This CSS needs heavy work. I do not understand how subclasses work*/
+
+
+@import url("https://fonts.googleapis.com/css?family=Special+Elite");
+
+* {	
+	font-family:'Special Elite';
+	background:transparent;
+}
+
+.wrapper{
+	text-align:center;
+	background:light-grey;
+	border:2px black dashed;
+	border-radius:6px;
+	margin:4px;}
+
+label {
+	font-size:14px;
+	border-radius:6px;
+	margin:2px;	
+	padding:2px;
+	padding-bottom:2px;	
+	display:inline-block;
+}
+input{
+	text-align:center;
+	margin:8px;
+	font-size:19px;
+	padding:4px;
+	padding-bottom:0;
+	border:2px dashed black;
+}
+.neatinput {	
+	display: block;
+	border:transparent;
+	border-bottom:2px dashed black;
+	margin:16px;
+}
+.hidden {
+	display:none;
+}
+.chatbox {
+	position:relative;
+	background:white;
+	height:60px;
+	font-size:16px;
+	border:2px dashed black;
+	border-radius:8px;
+	width:320px;		
+	margin:6px;;	
+	padding:8px;
+	maxlength:160;		
+	resize:none;	
+}
+.message {
+	position:relative;
+	min-height:66px;
+	min-width:20px;	
+	!width:auto;	
+	height:66px;	
+	margin:10px;
+	margin-bottom:-3px;
+	margin-right:20px;
+	float:left;	
+	border:2px dashed black;
+	border-radius:8px;		
+	overflow:hidden;
+	background:linear-gradient(white,#fcffe0);
+	
+}
+.messagefrom {	
+	float:left;
+	margin:2px;
+	font-size:18px;	
+}
+.messagetime {
+	position:absolute;
+	margin:2px;	
+	right:0;
+	top:20px;
+}
+.messagememo {	
+	font-size:14px;
+	word-wrap:break-word;
+	min-width:0;
+	max-width:254px;
+	width:234px;	
+	margin-top:38px;
+	border:transparent;
+	border-top:1px dashed black;			
+	min-height:7px;	
+	height:1px;		
+	padding:6px;		
+	overflow:hidden;
+	resize:none;		
+}
+.messagenum {	
+	width:20px;
+	height:16px;
+	max-width:20px;
+	max-height:16px;
+	position:absolute;
+	left:3px;
+	top:18px;
+	font-style:bold;
+	font-size:18px;
+	border-radius:50%;
+	border:1px solid black;
+	text-align:center;
+	padding-top:4px;
+	background:white;
+}
+.messageto {
+	display:none;
+}
+.convomessage {
+	font-size:18px;
+	word-wrap:break-word;
+	padding:10px;
+	padding-top:18px;
+	position:relative;
+	!min-height:66px;
+	min-width:270px;
+	max-width:330px;
+	width:auto;	
+	height:auto;
+	margin-top:2px;
+	margin-left:2px;
+	float:left;	
+	border:2px dashed black;
+	border-radius:5px;
+	margin:4px;	
+	margin-bottom:40px;
+}
+.convomessagetime {
+	padding:6px;
+	padding-bottom:0px;
+	position:absolute;
+	margin:2px;		
+	left:-4px;
+	top:-24px;
+	background:white;
+	border:2px dashed black;
+	border-radius:6px;
+	border-bottom:2px solid white;
+}
+.down {	
+	padding:6px;
+	padding-bottom:0px;
+	position:absolute;
+	margin:2px;	
+	background:white;
+	border:2px dashed black;
+	border-top:2px solid white;
+	right:-4px;
+	bottom:-24px;
+	border-radius:6px;
+}
+.convoblocker {
+	width:100%;
+	height:40%;
+	float:left;
+}
+.contact{
+	float:left;
+	padding-top:7px;
+	font-size:18px;
+	position:relative;
+	margin:4px;
+	border:2px dashed black;	
+	border-radius:5px;
+	margin-bottom:0;
+	width:172px;
+	height:20px;	
+	overflow:hidden;
+	background:linear-gradient(white,#fcffe0, white);
+}
+.contactfrom{
+	float:left;
+	width:172px;
+	height:20px;	
+	margin:0;
+	font-size:18px;	
+}
+.contactimage{	
+	background-image: url('https://steemitimages.com/u/smasher/avatar/small');
+	width:42px;
+	height:42px;
+	background-repeat:no-repeat;
+    background-size:contain;	
+}
+
+</style>
+
+<html>
+
+<head>
+	<title>steessenger</title>
+	<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
+</head>
+
+
+<!-- 
+
+	To do: 
+	
+		- (UI) Include 'logged in as:' and a status window for failed transactions, loading animations etc.		
+		- (UI) Include a visible counter for incoming and contacts
+		- (UI) Redo incoming messages standard layout
+		
+		- move style='' to css classes/subclasses .... use inheritance						
+
+-->
+
+<body>
+<div class='wrapper' style='width:1020px;height:640px;left:50%;top:10px;;margin-left:-512px;position:absolute;border-radius:8px;background:white;background:linear-gradient(white,white,#effcfb,#effcfb,white);'>
+	<div id='incoming' class='wrapper'style='width:300px;height:584px;float:left;overflow-y:auto;border:2px solid transparent;margin-top:18px;padding-bottom:18px;'>	
+	</div>	
+	<div id='convowrapper' class='wrapper' style='width:492px;height:688px;float:left;margin-left:0;margin-right:0;position:relative;border:2px solid transparent;'>		
+		<div id='convoname' onclick='selectName()' style='border:2px black dashed;border-radius:8px;border-top:4px white solid;margin:0;margin-top:-10px;height:auto;width:auto;display:inline-table;padding:10px;padding-bottom:0px;padding-top:4px;font-size:28px;display:none;'>				
+		</div>
+		<div id='convo' style='width:99%;height:482px;overflow-y:auto;padding:2px;position:relative;display:none'>	
+			<div id='convoblocker' style='width:100%;height:80%;!height:100%;color:white;'>
+			</div>			
+		</div>
+		<div id='chat' class='wrapper' style='position:relative;width:auto;height:auto;border-bottom:4px solid white;margin-top:10px;!margin-left:36px;background:linear-gradient(white, #e1dbff, white);border-radius:10px;float:center;padding-top:12px;display:none;'>
+			<textarea maxlength = 160 id='chatbox' class='chatbox'>				
+			</textarea>
+			<input type='submit' onclick='convoScrollToBottom()' value='>' style='width:52px;height:52px;font-size:36px;background:white;margin-top:18px;padding-top:11px;padding-left:6px;margin-right:37px;float:right;border:1px solid black;border-radius:50%;'></input>			
+		</div>		
+		
+	</div>		
+		<div class='wrapper' style='width:200px;height:83px;float:left;padding-top:18px;margin-bottom:0;margin-top:-6px;border:2px solid transparent;'>
+			<input id='usersearch' style='max-width:172px;overflow:visible;border:transparent;border-bottom:2px dashed black;margin-right:5px;'></input>
+			<input type='submit' value='?' style='margin:1px;font-size:33px;font-weight:bold;;border-radius:50%;width:34px;height:34px;'></input>
+		</div>
+	<div id='contacts' class='wrapper'style='width:200px;height:518px;float:left;overflow-y:auto;border:2px solid transparent;'>
+	</div>
+	<div id='loginwrapper' style='width:100%;height:100%;margin:0;padding:0;background:white;position:absolute;'>
+		<div class='wrapper' style='width:400px;height:400px;position:relative;margin:0px;left:50%;top:50%;margin-top:-200px;margin-left:-200px;background:white;!display:none;'>
+			<h1>login</h1>
+			<label style='margin-top:18px;'>steem username:
+				<input id='username' value='felixxx' class='neatinput'></input>
+			</label>
+			<label>wif active key: (does not work yet)
+				<input type='password' class='neatinput' style='width:300px;'></input>
+			</label>
+			<label>wif memo key: (does not work yet)
+				<input type='password' class='neatinput' style='width:300px;'></input>
+			</label>		
+			<input type='submit' onclick='go()' value='submit' style='margin:auto;margin-top:12px;padding:8px;padding-bottom:4px;'></input>
+		</div>
+	</div>	
+</div>
+</body>
+
+
+<script>
+
+/*
+
+	to do:
+	
+		- everything
+		- add() needs to accept parameters instead of using global variables
+		- getMessages() needs to accept 'start' !== parameter
+		- a refresh function that accepts a last ID (button or x sec. sync ?)				
+		- contact search function ( autofill with div entries + steem.api user check )
+		- sending a message function		
+
+*/
+
+var highlight = 'linear-gradient(white, #d3ff11, white)';
+var highlightuser = 'linear-gradient(white, #e1dbff, white)';
+
+var convoname =document.getElementById('convoname');
+var convo = document.getElementById('convo');
+var incoming = document.getElementById('incoming');
+var usersearch = document.getElementById('usersearch');
+
+var username = '' ;
+var wifActive = '';
+var wifMemo = '';
+
+var start = -1; // these should not be a global variables but instead live in getMessages()
+var limit = 0; 
+var last = 0;
+
+var txid = 0;
+var txfrom = '';
+var txto = '';
+var txmemo = '';
+var txtime = '';
+
+var allMessagesCounter = 0;
+var contactscounter = 0;
+
+
+
+	
+function constructImageUrl(name) {	
+
+	var urli = 'https://steemitimages.com/u/' + name + '/avatar/small';	 
+	return urli;
+
+};		
+// usage: 	.style.backgroundImage = "url('" + constructImageUrl(name) + "')";
+
+
+// this is a complete disaster 
+
+// should be the function of a message object, instead of reading from global vars ( txfrom, txthis, ... ):
+
+function add() {	
+
+	var counter = 0;
+	
+	var message = document.createElement('div');
+	
+	message.setAttribute('class','message');
+	
+	if (txfrom == username) {
+		message.setAttribute('class','message hidden');
+	};
+	
+	while (counter < allMessagesCounter) {
+		counter ++;																					// this hides double entries and counts them up for each contact
+		if (document.getElementById('from'+ counter).innerHTML == txfrom) {
+			message.setAttribute('class','message hidden');											// ... that will not work with a refresh and needs to be taken care of
+			document.getElementById('num'+counter).setAttribute('class','messagenum');
+			if (document.getElementById('num'+counter).innerHTML == '') {
+				document.getElementById('num'+counter).innerHTML = '2';
+			}
+			else {
+				if (document.getElementById('num'+counter).innerHTML != '99+') {				
+					document.getElementById('num'+counter).innerHTML = (parseInt(document.getElementById('num'+counter).innerHTML) + 1);				
+					if (parseInt(document.getElementById('num'+counter).innerHTML)  > 99) {
+						document.getElementById('num'+counter).innerHTML = '99+';
+					};
+				};			
+			};
+		};		
+	};
+	
+	allMessagesCounter ++;
+	
+	var messageid = 'message' + allMessagesCounter
+	var fromid = 'from' + allMessagesCounter
+	var toid = 'to' + allMessagesCounter
+	var timeid = 'time' + allMessagesCounter
+	var memoid = 'memo' + allMessagesCounter
+	var numid = 'num' + allMessagesCounter
+	
+	message.setAttribute('id',messageid);	
+	
+	incoming.append(message);
+	
+	var messageto = document.createElement('label');
+	var messagetime = document.createElement('label');
+	var messagefrom = document.createElement('label');	
+	var messagenum = document.createElement('label');	
+	var messagememo = document.createElement('div');	
+
+	messageto.innerHTML = txto;
+	messagetime.innerHTML = txtime;	
+	messagefrom.innerHTML = txfrom;
+	messagenum.innerHTML = '';
+	messagememo.innerHTML = txmemo;
+	
+	messageto.setAttribute('class', 'messageto hidden');
+	messagetime.setAttribute('class', 'messagetime');
+	messagefrom.setAttribute('class', 'messagefrom');
+	messagememo.setAttribute('class', 'messagememo');	
+	messagenum.setAttribute('class', 'messagenum hidden');
+		
+	messageto.setAttribute('id', toid);
+	messagetime.setAttribute('id', timeid);
+	messagefrom.setAttribute('id', fromid);
+	messagememo.setAttribute('id', memoid);	
+	messagenum.setAttribute('id', numid);
+	
+	message.append(messageto);
+	message.append(messagetime);
+	message.append(messagefrom);
+	message.append(messagenum);
+	message.append(messagememo);
+	
+	var allMessages = incoming.getElementsByClassName('message');	
+	
+	for ( var x in allMessages ) {		
+		allMessages[x].onclick = selectMessage; 	
+	};
+	
+	var contacts = document.getElementById('contacts');	
+	
+	var contact = document.createElement('div');
+	var contactfrom = document.createElement('div');
+	var contactimage =  document.createElement('label');
+
+	if (txfrom == username) {
+		txfrom = txto;				
+	};		
+	
+	var allContacts = contacts.getElementsByClassName('contact');
+		
+	if (allContacts.length == 0) {
+		contacts.append(contact);
+		}
+	else {																					// adding contacts dynamically alphabetically
+	
+		var alreadyinlist = 0;
+	
+		for ( var x=0, len = allContacts.length; x < len; x++ ) {
+			if (allContacts[x].children[0].innerHTML == txfrom) {
+				alreadyinlist = 1;
+			};
+		};
+	
+		if (alreadyinlist !== 1) {
+	
+	
+			for ( var x=0, len = allContacts.length; x < len; x++ ) {
+				if (allContacts[x].children[0].innerHTML > txfrom) {
+					console.log(allContacts[x].children[0].innerHTML +' > '+ txfrom);
+					contacts.insertBefore(contact, allContacts[x]);			
+					alreadyinlist = 1;
+					break;
+				};
+			};
+			if (alreadyinlist !== 1) {
+				contacts.append(contact);
+			};
+		};
+	};
+	
+	contact.append(contactfrom);
+	contact.append(contactimage);
+	
+	contact.setAttribute('class', 'contact');
+	contactfrom.setAttribute('class', 'contactfrom');
+	contactimage.setAttribute('class', 'contactimage');
+
+	var contactid = 'contact' + allMessagesCounter;
+	var contactfromid = 'contactfrom' + allMessagesCounter;
+	var contactimageid = 'contactimage' + allMessagesCounter;	
+	
+	contact.setAttribute('id', contactid);
+	contactfrom.setAttribute('id', contactfromid);
+	contactimage.setAttribute('id', contactimageid);
+	
+	var allContacts = contacts.getElementsByClassName('contact');	
+	
+	contactfrom.innerHTML = txfrom;	
+	
+	var allContacts = contacts.getElementsByClassName('contact');
+
+	for ( var x in allContacts ) {		
+		allContacts[x].onclick = selectContact; 		
+	};	
+};
+
+function selectMessage() {	
+
+	var thisfrom = this.getElementsByClassName('messagefrom')[0].innerHTML;		
+	
+	var allMessages = incoming.getElementsByClassName('message');
+	for ( var x in allMessages ) {
+		allMessages[x].style = 'border:2px dashed black;';		
+	};
+
+	var allContacts = contacts.getElementsByClassName('contact');
+	for ( var x in allContacts ) {
+		allContacts[x].style = 'border:2px dashed black;';   
+	};	
+		
+	this.style.height='auto';	
+	this.style.background=highlight;
+	this.style.marginBottom = '0';
+	loadconvo(thisfrom);
+		
+	this.children[4].style.height = 'auto';
+};	
+
+function selectContact() {
+
+	var allMessages = incoming.getElementsByClassName('message');
+	for ( var x in allMessages ) {
+		allMessages[x].style = 'border:2px dashed black;';   		
+	};
+
+	var allContacts = contacts.getElementsByClassName('contact');
+	for ( var x in allContacts ) {
+		allContacts[x].style = 'border:2px dashed black;';   
+	};
+	
+	this.style.height='200px';
+	this.style.background=highlight;		
+		
+	var thisfrom = this.getElementsByClassName('contactfrom')[0].innerHTML;	
+	
+	var urli = 'https://steemitimages.com/u/' + thisfrom + '/avatar/small';	
+	
+	this.children[1].style.backgroundImage = "url('" + urli + "')";
+	
+	loadconvo(thisfrom);
+};
+
+function selectName() {
+
+	var thisfrom = convoname.innerHTML;
+	
+	var allContacts = contacts.getElementsByClassName('contact');
+	for ( var x=0, len = allContacts.length; x < len; x++ ) {
+		allContacts[x].style = 'border:2px dashed black;';  		
+		if (allContacts[x].children[0].innerHTML == thisfrom) {
+			allContacts[x].style.height='200px';
+			allContacts[x].style.background=highlight;	
+			allContacts[x].children[1].style.backgroundImage = "url('" + constructImageUrl(thisfrom) + "')";
+			contacts.scrollTop = allContacts[x].offsetTop - 170;
+		};		
+	};
+	loadconvo(thisfrom);
+};
+
+function loadconvo(thisfrom) {	
+
+	convoname.innerHTML = thisfrom;
+	convoname.style.background = highlight;
+	
+	convo.style.display = 'block';	
+	convoname.style.display='inline-block';
+	document.getElementById('chat').style.display='block';
+	
+
+	var counter = 0;	
+	
+	while (convo.firstChild) {
+		convo.removeChild(convo.firstChild);
+	};
+	
+	var convoblocker = document.createElement('div');
+	convoblocker.setAttribute('class','convoblocker');
+	convo.append(convoblocker);	
+	
+	while (counter < allMessagesCounter) {
+		
+		counter ++;			
+		
+		if (document.getElementById('from'+ counter).innerHTML == thisfrom) {
+		
+				var convomessage = document.createElement('div');
+				var convomessagetime = document.createElement('label');
+				convomessage.setAttribute('class', 'convomessage');
+				convomessagetime.setAttribute('class', 'convomessagetime');
+				convomessage.innerHTML = document.getElementById('memo'+ counter).innerHTML;
+				convomessagetime.innerHTML = document.getElementById('time'+ counter).innerHTML;
+				convo.insertBefore(convomessage, convo.children[1]);
+				convomessage.append(convomessagetime);
+				convomessage.style.background = highlight;
+				if (thisfrom == username) {
+					convomessage.style.background = highlightuser;
+					convomessage.style.cssFloat = 'right';
+					convomessagetime.setAttribute('class', 'down')
+				};						
+		
+		};																							// obviously should be using if / else &&, || ...
+		
+		if (document.getElementById('to'+ counter).innerHTML == thisfrom) {		
+				var convomessage = document.createElement('div');
+				var convomessagetime = document.createElement('label');
+				convomessage.setAttribute('class', 'convomessage');
+				convomessagetime.setAttribute('class', 'down');
+				convomessage.innerHTML = document.getElementById('memo'+ counter).innerHTML;
+				convomessagetime.innerHTML = document.getElementById('time'+ counter).innerHTML;			
+				convomessage.style.cssFloat = 'right';						
+				convo.insertBefore(convomessage, convo.children[1]);
+				convomessage.append(convomessagetime);	
+				convomessage.style.background = highlightuser;
+				if (thisfrom == username) {
+					convomessage.style.cssFloat = 'left';
+					convomessage.style.background = highlight;
+					convomessagetime.setAttribute('class', 'convomessagetime')
+				};
+		};		
+		convoScrollToBottom();				
+	};	
+	counter = 0;
+	
+	while (counter < allMessagesCounter) {
+		counter++;
+		if (document.getElementById('from'+counter).innerHTML == thisfrom ) {
+			console.log('JA');
+			document.getElementById('num'+counter).setAttribute('class', 'messagenum hidden');
+		};
+	};
+};	
+
+// temporary placeholder function for testing the code and bid initial refresh to a button:
+
+function go() {	
+	username = document.getElementById('username').value;
+	
+	var loginwrapper = document.getElementById('loginwrapper');	
+	loginwrapper.setAttribute('class', 'hidden');
+	
+	function again(){							// this is ...
+		if (start > 1) {
+			getMessages(again);	
+		};
+	};
+	
+	do {		
+		getMessages(again);
+	}
+	while (start > 1);							//	... beautiful.
+												// needs to be replaced and accept a start that is not always 0
+};
+
+function getMessages(callback) {
+
+	steem.api.getAccountHistory(username, start, limit, function(err,result) {		
+		limit = 900;
+		start = start - limit;		
+		if (last == 0){							// <- initial load
+			last = result[0][0];				// this gets the lastId.  		Note: there is always at least one item (account creation)
+			start = last - 1;			
+		};
+		if (start < limit){
+				limit = start;
+		}										// go through history backwards starting at last ending at 0
+		var reversedresult = result.reverse();
+		reversedresult.forEach(function(tx){
+			txid = tx[0];
+			var txtype = tx[1].op[0];
+			if (txtype == 'transfer'){
+				txfrom = tx[1].op[1].from;		// these should be an object handed to add() instead of a set of global variables
+				txto = tx[1].op[1].to;				
+				txmemo = tx[1].op[1].memo;
+				txtime = tx[1].timestamp;
+				txtime = txtime.replace('T',' ')
+				add();
+			};
+		});		
+		callback();		
+	});					
+};	
+
+function send() {
+//only testing 
+};
+
+function convoScrollToBottom() {
+	var convo = document.getElementById('convo');
+	convo.scrollTop = convo.scrollHeight;
+};
+
+/*
+ for later
+
+myInput.querySelector('css-selector').addEventListener('keypress', function (e) {
+    var key = e.which || e.keyCode;
+    if (key === 13) { // 13 is enter
+      // code for enter
+    }
+});
+*/
+
+</script>
+
+</html>
+
