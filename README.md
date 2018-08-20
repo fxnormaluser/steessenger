@@ -11,4 +11,4 @@ It should run locally in any browser newer than IE 5 ...
 
 It filters a users' account history for transfers and displays the result in the style of a messenger app.
 
-https://i.imgur.com/KseCTQa.png
+![](https://i.imgur.com/KseCTQa.png)
