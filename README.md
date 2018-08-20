@@ -13,7 +13,8 @@ It filters a users' account history for transfers and displays the result in the
 
 ![](https://i.imgur.com/KseCTQa.png)
 
-This is a work in progress and so far only the initial loading ov conversations work.
+This is a work in progress and so far only the initial loading of conversations works.
+
 Any help with this project is appreciated:
 
 https://discord.gg/QZ8W3TH
